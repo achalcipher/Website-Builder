@@ -10,6 +10,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         authClient={authClient}
         navigate={navigate}
         Link={(props)=> <NavLink {...props} to={props.href}/>}
+        basePath="/auth"
       >
           {children}
       </AuthUIProvider>

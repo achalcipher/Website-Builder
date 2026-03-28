@@ -51,7 +51,7 @@ export const makeRevision = async (req: Request, res: Response) => {
 
         // Enhance user prompt
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'kwaipilot/kat-coder-pro:free',
+            model: 'deepseek/deepseek-chat-v3-0324:free',
             messages: [
                 {
                     role: 'system',
@@ -92,7 +92,7 @@ export const makeRevision = async (req: Request, res: Response) => {
 
         // Generate website code
         const codeGenerationResponse = await openai.chat.completions.create({
-            model: 'kwaipilot/kat-coder-pro:free',
+            model: 'deepseek/deepseek-chat-v3-0324:free',
             messages: [
                 {
                     role: 'system',

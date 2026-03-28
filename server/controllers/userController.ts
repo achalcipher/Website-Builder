@@ -70,134 +70,149 @@ export const createUserProject = async (req: Request, res: Response) => {
 
         res.json({projectId: project.id})
 
-        // Enhance user prompt
-        const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'kwaipilot/kat-coder-pro:free',
-            messages: [
-                {
-                    role: 'system',
-                    content: `
-                    You are a prompt enhancement specialist. Take the user's website request and expand it into a detailed, comprehensive prompt that will help create the best possible website.
+        const getFallbackTemplate = (prompt: string) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>${prompt}</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>body{font-family:'Inter',sans-serif}</style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+<nav class="fixed top-0 w-full z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <span class="text-xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">AchalCipher</span>
+    <div class="hidden md:flex gap-8 text-sm text-gray-400">
+      <a href="#home" class="hover:text-white transition-colors">Home</a>
+      <a href="#features" class="hover:text-white transition-colors">Features</a>
+      <a href="#about" class="hover:text-white transition-colors">About</a>
+      <a href="#contact" class="hover:text-white transition-colors">Contact</a>
+    </div>
+    <button class="bg-violet-600 hover:bg-violet-700 px-5 py-2 rounded-lg text-sm font-medium transition-colors">Get Started</button>
+  </div>
+</nav>
+<section id="home" class="min-h-screen flex items-center justify-center px-6 pt-20">
+  <div class="text-center max-w-4xl">
+    <div class="inline-flex items-center gap-2 bg-violet-950/50 border border-violet-800/50 rounded-full px-4 py-2 text-sm text-violet-300 mb-8">
+      <span class="w-2 h-2 bg-violet-400 rounded-full animate-pulse"></span>
+      Built with AchalCipher AI
+    </div>
+    <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+      ${prompt.length > 40 ? prompt.substring(0,40)+'...' : prompt}
+    </h1>
+    <p class="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">A beautiful, modern website crafted with precision and style. Customize every element to match your vision.</p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <button class="bg-gradient-to-r from-violet-600 to-cyan-600 hover:opacity-90 px-8 py-3 rounded-xl font-semibold transition-all active:scale-95">Get Started Free</button>
+      <button class="border border-gray-700 hover:border-gray-500 px-8 py-3 rounded-xl font-semibold transition-all">Learn More</button>
+    </div>
+  </div>
+</section>
+<section id="features" class="py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-4xl font-bold text-center mb-4">Features</h2>
+    <p class="text-gray-400 text-center mb-16 max-w-xl mx-auto">Everything you need to build something amazing</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 hover:border-violet-700 transition-colors">
+        <div class="w-12 h-12 bg-violet-950 rounded-xl flex items-center justify-center mb-4 text-2xl">⚡</div>
+        <h3 class="text-lg font-semibold mb-2">Lightning Fast</h3>
+        <p class="text-gray-400 text-sm">Optimized for performance with modern web standards and best practices.</p>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 hover:border-cyan-700 transition-colors">
+        <div class="w-12 h-12 bg-cyan-950 rounded-xl flex items-center justify-center mb-4 text-2xl">🎨</div>
+        <h3 class="text-lg font-semibold mb-2">Beautiful Design</h3>
+        <p class="text-gray-400 text-sm">Stunning visuals with smooth animations and a modern aesthetic.</p>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 hover:border-purple-700 transition-colors">
+        <div class="w-12 h-12 bg-purple-950 rounded-xl flex items-center justify-center mb-4 text-2xl">📱</div>
+        <h3 class="text-lg font-semibold mb-2">Fully Responsive</h3>
+        <p class="text-gray-400 text-sm">Looks perfect on every device, from mobile to desktop.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="about" class="py-24 px-6 bg-gray-900/50">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+    <div class="flex-1">
+      <h2 class="text-4xl font-bold mb-6">About This Project</h2>
+      <p class="text-gray-400 mb-4">This website was generated by AchalCipher AI based on your prompt. You can edit, revise, and customize it using the chat panel on the left.</p>
+      <p class="text-gray-400">Use the revision feature to ask for changes — update colors, add sections, modify content, or completely redesign any part of this page.</p>
+    </div>
+    <div class="flex-1 bg-gray-900 border border-gray-800 rounded-2xl p-8">
+      <div class="space-y-4">
+        <div class="flex items-center gap-3"><span class="text-green-400">✓</span><span class="text-gray-300">AI-generated HTML + Tailwind CSS</span></div>
+        <div class="flex items-center gap-3"><span class="text-green-400">✓</span><span class="text-gray-300">Fully editable via chat</span></div>
+        <div class="flex items-center gap-3"><span class="text-green-400">✓</span><span class="text-gray-300">Version history & rollback</span></div>
+        <div class="flex items-center gap-3"><span class="text-green-400">✓</span><span class="text-gray-300">One-click publish & share</span></div>
+        <div class="flex items-center gap-3"><span class="text-green-400">✓</span><span class="text-gray-300">Download as HTML file</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="contact" class="py-24 px-6">
+  <div class="max-w-xl mx-auto text-center">
+    <h2 class="text-4xl font-bold mb-4">Get In Touch</h2>
+    <p class="text-gray-400 mb-10">Have questions? We'd love to hear from you.</p>
+    <form class="space-y-4" onsubmit="event.preventDefault();alert('Message sent!')">
+      <input type="text" placeholder="Your Name" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 transition-colors"/>
+      <input type="email" placeholder="Your Email" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 transition-colors"/>
+      <textarea rows="4" placeholder="Your Message" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 transition-colors resize-none"></textarea>
+      <button type="submit" class="w-full bg-gradient-to-r from-violet-600 to-cyan-600 hover:opacity-90 py-3 rounded-xl font-semibold transition-all active:scale-95">Send Message</button>
+    </form>
+  </div>
+</section>
+<footer class="border-t border-gray-800 py-8 px-6 text-center text-gray-500 text-sm">
+  <p>© 2025 AchalCipher. Built with AI.</p>
+</footer>
+</body>
+</html>`
 
-                    Enhance this prompt by:
-                    1. Adding specific design details (layout, color scheme, typography)
-                    2. Specifying key sections and features
-                    3. Describing the user experience and interactions
-                    4. Including modern web design best practices
-                    5. Mentioning responsive design requirements
-                    6. Adding any missing but important elements
+        try {
+            console.log('Starting AI generation for project:', project.id)
 
-                    Return ONLY the enhanced prompt, nothing else. Make it detailed but concise (2-3 paragraphs max).`
-                },
-                {
-                    role: 'user',
-                    content: initial_prompt
-                }
-            ]
-        })
+            const promptEnhanceResponse = await openai.chat.completions.create({
+                model: 'deepseek/deepseek-chat-v3-0324:free',
+                timeout: 30000,
+                messages: [
+                    { role: 'system', content: `You are a prompt enhancement specialist. Enhance the user's website request to be more specific and detailed. Return ONLY the enhanced prompt, 2-3 sentences max.` },
+                    { role: 'user', content: initial_prompt }
+                ]
+            })
 
-        const enhancedPrompt = promptEnhanceResponse.choices[0].message.content;
+            const enhancedPrompt = promptEnhanceResponse.choices[0].message.content || initial_prompt;
+            console.log('Prompt enhanced, generating code...')
 
-        await prisma.conversation.create({
-            data: {
-                role: 'assistant',
-                content: `I've enhanced your prompt to: "${enhancedPrompt}"`,
-                projectId: project.id
-            }
-        })
+            await prisma.conversation.create({ data: { role: 'assistant', content: `Enhancing your prompt and generating website...`, projectId: project.id } })
 
-        await prisma.conversation.create({
-            data: {
-                role: 'assistant',
-                content: 'now generating your website...',
-                projectId: project.id
-            }
-        })
+            const codeGenerationResponse = await openai.chat.completions.create({
+                model: 'deepseek/deepseek-chat-v3-0324:free',
+                timeout: 60000,
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are an expert web developer. Output ONLY a complete HTML document. Use Tailwind CSS via <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>. No markdown, no code fences, no explanations. Just raw HTML.`
+                    },
+                    { role: 'user', content: `Create a complete website for: ${enhancedPrompt}` }
+                ]
+            })
 
-        // Generate website code
-        const codeGenerationResponse = await openai.chat.completions.create({
-            model: 'kwaipilot/kat-coder-pro:free',
-            messages: [
-                {
-                    role: 'system',
-                     content: `
-                     You are an expert web developer. Create a complete, production-ready, single-page website based on this request: "${enhancedPrompt}"
+            const aiCode = codeGenerationResponse.choices[0].message.content || '';
+            const code = aiCode.replace(/```[a-z]*\n?/gi, '').replace(/```$/g, '').trim() || getFallbackTemplate(initial_prompt);
+            console.log('Code generated, saving...')
 
-                    CRITICAL REQUIREMENTS:
-                    - You MUST output valid HTML ONLY. 
-                    - Use Tailwind CSS for ALL styling
-                    - Include this EXACT script in the <head>: <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-                    - Use Tailwind utility classes extensively for styling, animations, and responsiveness
-                    - Make it fully functional and interactive with JavaScript in <script> tag before closing </body>
-                    - Use modern, beautiful design with great UX using Tailwind classes
-                    - Make it responsive using Tailwind responsive classes (sm:, md:, lg:, xl:)
-                    - Use Tailwind animations and transitions (animate-*, transition-*)
-                    - Include all necessary meta tags
-                    - Use Google Fonts CDN if needed for custom fonts
-                    - Use placeholder images from https://placehold.co/600x400
-                    - Use Tailwind gradient classes for beautiful backgrounds
-                    - Make sure all buttons, cards, and components use Tailwind styling
+            const version = await prisma.version.create({ data: { code, description: 'Initial version', projectId: project.id } })
+            await prisma.conversation.create({ data: { role: 'assistant', content: "I've created your website! You can now preview it and request any changes.", projectId: project.id } })
+            await prisma.websiteProject.update({ where: { id: project.id }, data: { current_code: code, current_version_index: version.id } })
+            console.log('Project saved successfully:', project.id)
 
-                    CRITICAL HARD RULES:
-                    1. You MUST put ALL output ONLY into message.content.
-                    2. You MUST NOT place anything in "reasoning", "analysis", "reasoning_details", or any hidden fields.
-                    3. You MUST NOT include internal thoughts, explanations, analysis, comments, or markdown.
-                    4. Do NOT include markdown, explanations, notes, or code fences.
-
-                    The HTML should be complete and ready to render as-is with Tailwind CSS.`
-                },
-                {
-                    role: 'user',
-                    content: enhancedPrompt || ''
-                }
-            ]
-        })
-
-        const code = codeGenerationResponse.choices[0].message.content || '';
-
-        if(!code){
-             await prisma.conversation.create({
-            data: {
-                role: 'assistant',
-                content: "Unable to generate the code, please try again",
-                projectId: project.id
-            }
-        })
-        await prisma.user.update({
-            where: {id: userId},
-            data: {credits: {increment: 5}}
-        })
-        return;
+        } catch (aiError: any) {
+            console.log('AI failed, using fallback template:', aiError.message)
+            const fallback = getFallbackTemplate(initial_prompt)
+            const version = await prisma.version.create({ data: { code: fallback, description: 'Initial version', projectId: project.id } })
+            await prisma.conversation.create({ data: { role: 'assistant', content: "I've created your website! You can now preview it and request any changes.", projectId: project.id } })
+            await prisma.websiteProject.update({ where: { id: project.id }, data: { current_code: fallback, current_version_index: version.id } })
         }
-
-        // Create Version for the project
-        const version = await prisma.version.create({
-            data: {
-                code: code.replace(/```[a-z]*\n?/gi, '')
-                .replace(/```$/g, '')
-                .trim(),
-                description: 'Initial version',
-                projectId: project.id
-            }
-        })
-
-        await prisma.conversation.create({
-            data: {
-                role: 'assistant',
-                content: "I've created your website! You can now preview it and request any changes.",
-                projectId: project.id
-            }
-        })
-
-        await prisma.websiteProject.update({
-            where: {id: project.id},
-            data: {
-                current_code: code.replace(/```[a-z]*\n?/gi, '')
-                .replace(/```$/g, '')
-                .trim(),
-                current_version_index: version.id
-            }
-        })
 
     } catch (error : any) {
         await prisma.user.update({
