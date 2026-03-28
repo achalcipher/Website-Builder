@@ -5,8 +5,8 @@ const Loading = () => {
 
     useEffect(()=>{
         setTimeout(()=>{
-            window.location.href = '/'
-        },6000)
+            window.location.href = '/projects'
+        },4000)
     },[])
 
   return (

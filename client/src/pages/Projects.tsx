@@ -91,7 +91,15 @@ const Projects = () => {
 
   useEffect(()=>{
     if(project && !project.current_code){
-      const intervalId = setInterval(fetchProject, 10000);
+      let retries = 0;
+      const intervalId = setInterval(()=>{
+        retries++;
+        fetchProject();
+        if(retries >= 18){
+          clearInterval(intervalId);
+          toast.error('Generation is taking too long. Please try again.');
+        }
+      }, 10000);
       return ()=> clearInterval(intervalId)
     }
   },[project])

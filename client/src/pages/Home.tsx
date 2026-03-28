@@ -1,9 +1,18 @@
 import api from '@/configs/axios';
 import { authClient } from '@/lib/auth-client';
-import { Loader2Icon } from 'lucide-react';
+import { Loader2Icon, SparklesIcon } from 'lucide-react';
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+
+const SUGGESTIONS = [
+  'Portfolio website for a developer',
+  'Landing page for a coffee shop',
+  'SaaS pricing page with 3 plans',
+  'Personal blog with dark theme',
+  'Restaurant menu website',
+  'Startup homepage with hero section',
+]
 
 const Home = () => {
 
@@ -30,12 +39,10 @@ const Home = () => {
       toast.error(error?.response?.data?.message || error.message);
       console.log(error);
     }
-
   }
 
   return (
-  
-      <section className="flex flex-col items-center text-white text-sm pb-20 px-4 font-poppins">
+      <section className="flex flex-col items-center text-white text-sm pb-20 px-4">
 
         <div className="flex items-center gap-2 border border-violet-800/50 bg-violet-950/30 rounded-full p-1 pr-3 text-sm mt-20">
           <span className="bg-violet-600 text-xs px-3 py-1 rounded-full">NEW</span>
@@ -54,15 +61,36 @@ const Home = () => {
         </p>
 
         <form onSubmit={onSubmitHandler} className="bg-white/10 max-w-2xl w-full rounded-xl p-4 mt-10 border border-violet-600/70 focus-within:ring-2 ring-violet-500 transition-all">
-          <textarea onChange={e => setInput(e.target.value)} className="bg-transparent outline-none text-gray-300 resize-none w-full" rows={4} placeholder="Describe your website in detail..." required />
-          <button className="ml-auto flex items-center gap-2 bg-gradient-to-r from-violet-600 to-cyan-500 rounded-md px-4 py-2">
-            {!loading ? 'Build with AI' : (
-              <>
-              Building <Loader2Icon className='animate-spin size-4 text-white'/>
-              </>
-            )}
-          </button>
+          <textarea
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            className="bg-transparent outline-none text-gray-300 resize-none w-full"
+            rows={4}
+            placeholder="Describe your website in detail..."
+            required
+          />
+          <div className="flex items-center justify-between mt-2">
+            <span className="text-xs text-gray-500">{input.length} chars</span>
+            <button className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-cyan-500 rounded-md px-4 py-2 text-sm font-medium active:scale-95 transition-transform">
+              {!loading ? <><SparklesIcon className='size-4'/> Build with AI</> : (
+                <>Building <Loader2Icon className='animate-spin size-4 text-white'/></>
+              )}
+            </button>
+          </div>
         </form>
+
+        {/* Prompt suggestions */}
+        <div className="flex flex-wrap justify-center gap-2 mt-5 max-w-2xl">
+          {SUGGESTIONS.map((s) => (
+            <button
+              key={s}
+              onClick={() => setInput(s)}
+              className="text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400 hover:border-violet-600 hover:text-violet-300 transition-colors"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
 
         <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 mx-auto mt-16">
           <div className="flex flex-col items-center text-center">
@@ -86,7 +114,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
   )
 }
 
