@@ -44,7 +44,7 @@ const Community = () => {
                         key={project.id} 
                         to={`/view/${project.id}`}
                         target='_blank'
-                        className='w-72 max-sm:mx-auto cursor-pointer bg-gray-900/60 border border-gray-700 rounded-lg overflow-hidden group hover:border-indigo-800/80 transition-all duration-300'>
+                        className='w-72 max-sm:mx-auto cursor-pointer bg-gray-900/60 border border-gray-700 rounded-lg overflow-hidden group hover:border-violet-800/80 transition-all duration-300'>
                             {/* Desktop-like Mini Preview */}
                             <div className='relative w-full h-40 bg-gray-900 overflow-hidden border-b border-gray-800'>
                                 {project.current_code ? (
@@ -61,7 +61,7 @@ const Community = () => {
                             )}
                             </div>
                              {/* Content */}
-                             <div className='p-4 text-white bg-linear-180 from-transparent group-hover:from-indigo-950 to-transparent transition-colors'>
+                             <div className='p-4 text-white bg-linear-180 from-transparent group-hover:from-violet-950 to-transparent transition-colors'>
                                 <div className='flex items-start justify-between'>
                                     <h2 className='text-lg font-medium line-clamp-2'>{project.name}</h2>
                                     <button className='px-2.5 py-0.5 mt-1 ml-2 text-xs bg-gray-800 border border-gray-700 rounded-full'>Website</button>

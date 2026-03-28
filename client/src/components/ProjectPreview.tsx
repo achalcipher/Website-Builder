@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import type { Project } from '../types';
 import { iframeScript } from '../assets/assets';
 import EditorPanel from './EditorPanel';
@@ -72,16 +72,15 @@ const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({proj
         }
     }
 
-    const injectPreview = (html: string)=>{
-        if(!html) return '';
-        if(!showEditorPanel) return html
-
-        if(html.includes('</body>')){
+    const injectPreview = useMemo(() => {
+        if (!project.current_code) return '';
+        if (!showEditorPanel) return project.current_code;
+        const html = project.current_code;
+        if (html.includes('</body>')) {
             return html.replace('</body>', iframeScript + '</body>')
-        }else{
-            return html + iframeScript;
         }
-    }
+        return html + iframeScript;
+    }, [project.current_code, showEditorPanel])
 
   return (
     <div className='relative h-full bg-gray-900 flex-1 rounded-xl overflow-hidden max-sm:ml-2'>
@@ -89,7 +88,7 @@ const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({proj
         <>
         <iframe 
         ref={iframeRef}
-        srcDoc={injectPreview(project.current_code)}
+        srcDoc={injectPreview}
         className={`h-full max-sm:w-full ${resolutions[device]} mx-auto transition-all`}
         />
         {showEditorPanel && selectedElement && (

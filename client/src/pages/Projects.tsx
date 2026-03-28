@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Project } from '../types'
-import { ArrowBigDownDashIcon, EyeIcon, EyeOffIcon, FullscreenIcon, LaptopIcon, Loader2Icon, MessageSquareIcon, SaveIcon, SmartphoneIcon, TabletIcon, XIcon } from 'lucide-react'
+import { ArrowBigDownDashIcon, ClipboardCopyIcon, CopyIcon, EyeIcon, EyeOffIcon, FullscreenIcon, LaptopIcon, Loader2Icon, MessageSquareIcon, SaveIcon, SmartphoneIcon, TabletIcon, XIcon } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import ProjectPreview, { type ProjectPreviewRef } from '../components/ProjectPreview'
 import api from '@/configs/axios'
@@ -80,6 +80,22 @@ const Projects = () => {
     }
   }
 
+  const handleShare = () => {
+    const url = `${window.location.origin}/view/${projectId}`
+    navigator.clipboard.writeText(url)
+    toast.success('Share link copied!')
+  }
+
+  const handleDuplicate = async () => {
+    try {
+      const { data } = await api.post('/api/user/project', { initial_prompt: project?.initial_prompt + ' (copy)' })
+      toast.success('Project duplicated!')
+      navigate(`/projects/${data.projectId}`)
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error.message)
+    }
+  }
+
   useEffect(()=>{
     if(session?.user){
       fetchProject();
@@ -149,7 +165,13 @@ const Projects = () => {
               <button onClick={downloadCode} className='bg-linear-to-br from-blue-700 to-blue-600 hover:from-blue-600 hover:to-blue-500 text-white px-3.5 py-1 flex items-center gap-2 rounded sm:rounded-sm transition-colors'>
                 <ArrowBigDownDashIcon size={16} /> Download
               </button>
-              <button onClick={togglePublish} className='bg-linear-to-br from-indigo-700 to-indigo-600 hover:from-indigo-600 hover:to-indigo-500 text-white px-3.5 py-1 flex items-center gap-2 rounded sm:rounded-sm transition-colors'>
+              <button onClick={handleShare} className='bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white px-3.5 py-1 flex items-center gap-2 rounded sm:rounded-sm transition-colors'>
+                <ClipboardCopyIcon size={16} /> Share
+              </button>
+              <button onClick={handleDuplicate} className='max-sm:hidden bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white px-3.5 py-1 flex items-center gap-2 rounded sm:rounded-sm transition-colors'>
+                <CopyIcon size={16} /> Duplicate
+              </button>
+              <button onClick={togglePublish} className='bg-linear-to-br from-violet-700 to-violet-600 hover:from-violet-600 hover:to-violet-500 text-white px-3.5 py-1 flex items-center gap-2 rounded sm:rounded-sm transition-colors'>
                 {project.isPublished ?
                 <EyeOffIcon size={16}/> : <EyeIcon size={16}/> 
               }
